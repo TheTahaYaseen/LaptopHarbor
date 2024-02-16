@@ -1,9 +1,13 @@
-from django.contrib.auth import login, logout, authenticate
+from django.shortcuts import render
+
+# Create your views here.
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view
+
+from .models import UserProfile
 
 
 # Create your views here.
@@ -21,7 +25,7 @@ def register_view(request):
                 message = "User with username already exists"
             except User.DoesNotExist:
                 user = User.objects.create_user(username=username, password=password)
-                login(request, user)
+                user_profile = UserProfile.objects.create(associated_user=user, billing_address=None) 
                 message = "User registered and logged in!"
     else:
         message = "Username and password must be given!"
@@ -38,11 +42,9 @@ def login_view(request):
     if username and password:
         try:
             user = User.objects.get(username=username)
-
             user = authenticate(request=request, username=username, password=password)
 
             if user is not None:
-                login(request, user)
                 message = "User logged in!"
             else: 
                 message = "Incorrect credentials given!"
@@ -55,18 +57,4 @@ def login_view(request):
 
     context = {"message": message}
     return Response(context)
-
-@api_view(["PUT"])
-@permission_classes([IsAuthenticated])
-def logout_view(request):
-    logout(request)
-    message = "User logged out!"
-    context = {"message": message}
-    return Response(context)
-
-@api_view(["GET"])
-def fetch_current_user(request):
-    user = request.user
-    message = user
-    context = {"message": message}
-    return Response(context)
+    
