@@ -1,4 +1,4 @@
-# Admin Panel (A View For Each API Point) 
+# My Draft Of What The App Will Be (My Own Renowned Version)
 
 """
 
